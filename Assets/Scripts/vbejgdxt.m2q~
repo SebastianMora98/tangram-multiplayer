@@ -1,0 +1,122 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class GameController : MonoBehaviour
+{
+
+    public GameObject piezas;
+    private List<Pieza> piezasArray = new List<Pieza>();
+    private bool solutionFound = false;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+       
+         foreach (Transform child in piezas.transform)
+         {
+
+            Pieza pieza = new Pieza(child);
+            piezasArray.Add(pieza);
+
+        }
+
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+            
+        if (solutionFound) {
+            solutionFound = true;
+            foreach (Pieza pieza in piezasArray)
+            {
+                pieza.setRandom();
+                if (pieza.isTriggered())
+                {
+                    solutionFound = false;
+                }
+            }
+            if (solutionFound)
+            {
+                Debug.Log("Encontrada");
+            }
+        }
+        
+       
+    }
+}
+
+
+interface IPosicion
+{
+     UnityEngine.Transform PiezaGO { get; set; }
+}
+
+class Pieza : IPosicion
+{
+    // Constructor:
+    public Pieza( UnityEngine.Transform piezaGO)
+    {
+        PiezaGO = piezaGO;
+    }
+
+    // Property implementation:
+    public float X { get; set; }
+
+    public float getX()
+    {
+        return PiezaGO.transform.position.x;
+    }
+    public void setX(float x)
+    {
+         PiezaGO.transform.position = new Vector3(x,PiezaGO.transform.position.y, PiezaGO.transform.position.z) ;
+    }
+
+    public float getY()
+    {
+        return PiezaGO.transform.position.y;
+    }
+    public void setY(float y)
+    {
+        PiezaGO.transform.position = new Vector3( PiezaGO.transform.position.x,y, PiezaGO.transform.position.z);
+    }
+
+    public float getRotation()
+    {
+        return PiezaGO.transform.rotation.eulerAngles.z;
+    }
+    public void setRotation(float z)
+    {
+        PiezaGO.transform.rotation = Quaternion.Euler(PiezaGO.transform.rotation.eulerAngles.x, PiezaGO.transform.rotation.eulerAngles.y, z);
+    }
+
+    public bool getFlip() {
+        return PiezaGO.GetChild(0).GetComponent<SpriteRenderer>().flipX;
+    }
+
+    public void setFlip(bool flip)
+    {
+        PiezaGO.GetChild(0).GetComponent<SpriteRenderer>().flipX = flip;
+    }
+
+    public bool isTriggered() {
+        return PiezaGO.GetComponent<DragAndDropController>().isTriggered;
+    }
+
+    public void setRandom() {
+        PiezaGO.GetComponent<DragAndDropController>().isTriggered = false;
+        setX(Random.Range(0.0f, 8.0f));
+        setY(Random.Range(0.0f, 8.0f));
+        setFlip(Random.value > 0.5f);
+        float[] degrees = new float[] { 0.0f, 45.0f, 90.0f, 135.0f, 180.0f, 225.0f, -90.0f, -45.0f };
+        setRotation(degrees[Random.Range(0, 8)]);
+    }
+
+    public float Rotation { get; set; }
+
+    public Transform PiezaGO { get; set; }
+
+}
+
